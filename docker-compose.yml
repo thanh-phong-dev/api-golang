@@ -1,0 +1,51 @@
+﻿version: '3.7'
+
+services:
+  postgredb:
+    container_name: postgresBooking
+    image: postgres:latest
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5433:5432"
+    # volumes:
+    #   - database-data:/var/lib/postgresql/data/
+    networks:
+      - default
+  # redis:
+  #   container_name: redis
+  #   image: redis:5-alpine
+  #   ports:
+  #     - "6379:6379"
+  #   command: redis-server --requirepass admin123
+  #   restart: always
+    
+  # app:
+  #   build: .
+  #   command: ["go", "run", "main.go"]
+  #   environment:
+  #     TZ: "Asia/Ho_Chi_Minh"
+  #   volumes:
+  #     - .:/go/src/app
+  #   ports:
+  #     - "8089:8089"
+  #   depends_on:
+  #     - postgredb
+  #   networks:
+  #     - default
+  # backend:
+  #   container_name: api
+  #   restart: unless-stopped
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #       - "8089:8089"
+  #   depends_on:
+  #     - postgredb
+  #   networks:
+  #     - default
+
+volumes:
+  database-data:
