@@ -2,15 +2,15 @@
 
 services:
   postgredb:
-    container_name: postgresBooking
+    container_name: dbshopping
     image: postgres:latest
     restart: always
     env_file:
       - .env
     ports:
       - "5433:5432"
-    # volumes:
-    #   - database-data:/var/lib/postgresql/data/
+    volumes:
+      - database-data:/var/lib/postgresql/data/
     networks:
       - default
   # redis:
@@ -23,7 +23,7 @@ services:
     
   # app:
   #   build: .
-  #   command: ["go", "run", "main.go"]
+  #   command: ["go", "run", "controller/main.go"]
   #   environment:
   #     TZ: "Asia/Ho_Chi_Minh"
   #   volumes:

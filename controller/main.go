@@ -1,8 +1,8 @@
 package main
 
 import (
+	"api-booking/controller/server/api"
 	"api-booking/database"
-	"api-booking/handlers"
 	"context"
 	"fmt"
 	"log"
@@ -16,6 +16,15 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func init() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableColors: false,
+		FullTimestamp: true,
+		ForceColors:   true,
+	})
+	logrus.SetReportCaller(true)
+}
+
 func main() {
 	addr := ":8081"
 	listener, err := net.Listen("tcp", addr)
@@ -26,8 +35,7 @@ func main() {
 	}
 	defer db.Close()
 
-	httpHandler := handlers.NewHandler(db)
-
+	var httpHandler = api.NewHandler(db)
 	server := &http.Server{
 		Handler: httpHandler,
 	}
