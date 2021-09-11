@@ -15,7 +15,7 @@ var ErrNoMatch = fmt.Errorf("no matching record")
 
 const (
 	HOST = "localhost"
-	PORT = 5433
+	PORT = 5434
 )
 
 // Initialize executes create connection with postgres db
