@@ -13,13 +13,13 @@ services:
       - database-data:/var/lib/postgresql/data/
     networks:
       - default
-  # redis:
-  #   container_name: redis
-  #   image: redis:5-alpine
-  #   ports:
-  #     - "6379:6379"
-  #   command: redis-server --requirepass admin123
-  #   restart: always
+  redis:
+    container_name: redis
+    image: redis:5-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass admin123
+    restart: always
     
   # app:
   #   build: .

@@ -5,7 +5,7 @@ no-tests = true
 [psql]
   dbname = "shopping"
   host   = "localhost"
-  port   = 5433
+  port   = 5434
   user   = "postgresb"
   pass   = "Phong0832210125"
   schema = "public"

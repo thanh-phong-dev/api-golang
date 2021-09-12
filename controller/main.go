@@ -4,7 +4,6 @@ import (
 	"api-booking/controller/server/api"
 	"api-booking/database"
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 	"net"
@@ -14,11 +13,33 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
+	"github.com/go-redis/redis"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/sirupsen/logrus"
 )
+
+var client *redis.Client
+
+func init() {
+	//Initializing redis
+	dsn := os.Getenv("REDIS_DSN")
+	if len(dsn) == 0 {
+		dsn = "localhost:6379"
+	}
+	client = redis.NewClient(&redis.Options{
+		Addr:       dsn,
+		Password:   "admin123",
+		DB:         0,
+		MaxRetries: 3,
+	})
+	pong, err := client.Ping().Result()
+
+	if err != nil {
+		fmt.Printf("Cannot Ping: %v\n", err.Error())
+	} else {
+		fmt.Printf("Pong: %v\n", pong)
+	}
+}
 
 func init() {
 	logrus.SetFormatter(&logrus.TextFormatter{
@@ -27,20 +48,6 @@ func init() {
 		ForceColors:   true,
 	})
 	logrus.SetReportCaller(true)
-}
-
-func migrationsDB(db *sql.DB) {
-	driver, err := postgres.WithInstance(db, &postgres.Config{})
-	if err != nil {
-		logrus.WithFields(logrus.Fields{}).Infof("Could not WithInstance: %v", err)
-	}
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://controller/migrations",
-		"postgres", driver)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{}).Infof("Could not NewWithDatabaseInstance: %v", err)
-	}
-	m.Steps(2)
 }
 
 func main() {
@@ -55,9 +62,8 @@ func main() {
 	}
 
 	defer db.Close()
-	migrationsDB(db)
 
-	var httpHandler = api.NewHandler(db)
+	var httpHandler = api.NewHandler(db, client)
 	server := &http.Server{
 		Handler: httpHandler,
 	}

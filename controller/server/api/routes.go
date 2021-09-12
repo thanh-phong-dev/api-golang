@@ -9,9 +9,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis"
 )
 
-func NewHandler(db *sql.DB) http.Handler {
+func NewHandler(db *sql.DB, client *redis.Client) http.Handler {
 	// Force log's color
 	gin.ForceConsoleColor()
 	// Creates a gin router with default middleware:
@@ -34,7 +35,7 @@ func NewHandler(db *sql.DB) http.Handler {
 
 	v1 := router.Group("/api")
 	{
-		admin.Routes(v1, db)
+		admin.Routes(v1, db, client)
 		users.Routes(v1, db)
 	}
 

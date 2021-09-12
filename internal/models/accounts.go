@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/friendsofgo/errors"
+	"github.com/volatiletech/null"
 	"github.com/volatiletech/sqlboiler/boil"
 	"github.com/volatiletech/sqlboiler/queries"
 	"github.com/volatiletech/sqlboiler/queries/qm"
@@ -23,35 +24,47 @@ import (
 
 // Account is an object representing the database table.
 type Account struct {
-	ID       int64  `boil:"id" json:"id" toml:"id" yaml:"id"`
-	Username string `boil:"username" json:"username" toml:"username" yaml:"username"`
-	Password string `boil:"password" json:"password" toml:"password" yaml:"password"`
+	ID          int         `boil:"id" json:"id" toml:"id" yaml:"id"`
+	Username    string      `boil:"username" json:"username" toml:"username" yaml:"username"`
+	Password    string      `boil:"password" json:"password" toml:"password" yaml:"password"`
+	Email       null.String `boil:"email" json:"email,omitempty" toml:"email" yaml:"email,omitempty"`
+	Fullname    string      `boil:"fullname" json:"fullname" toml:"fullname" yaml:"fullname"`
+	Phonenumber string      `boil:"phonenumber" json:"phonenumber" toml:"phonenumber" yaml:"phonenumber"`
+	Role        string      `boil:"role" json:"role" toml:"role" yaml:"role"`
 
 	R *accountR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L accountL  `boil:"-" json:"-" toml:"-" yaml:"-"`
 }
 
 var AccountColumns = struct {
-	ID       string
-	Username string
-	Password string
+	ID          string
+	Username    string
+	Password    string
+	Email       string
+	Fullname    string
+	Phonenumber string
+	Role        string
 }{
-	ID:       "id",
-	Username: "username",
-	Password: "password",
+	ID:          "id",
+	Username:    "username",
+	Password:    "password",
+	Email:       "email",
+	Fullname:    "fullname",
+	Phonenumber: "phonenumber",
+	Role:        "role",
 }
 
 // Generated where
 
-type whereHelperint64 struct{ field string }
+type whereHelperint struct{ field string }
 
-func (w whereHelperint64) EQ(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
-func (w whereHelperint64) NEQ(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
-func (w whereHelperint64) LT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
-func (w whereHelperint64) LTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
-func (w whereHelperint64) GT(x int64) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
-func (w whereHelperint64) GTE(x int64) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
-func (w whereHelperint64) IN(slice []int64) qm.QueryMod {
+func (w whereHelperint) EQ(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperint) NEQ(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperint) LT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperint) LTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperint) GT(x int) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperint) GTE(x int) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+func (w whereHelperint) IN(slice []int) qm.QueryMod {
 	values := make([]interface{}, 0, len(slice))
 	for _, value := range slice {
 		values = append(values, value)
@@ -75,14 +88,45 @@ func (w whereHelperstring) IN(slice []string) qm.QueryMod {
 	return qm.WhereIn(fmt.Sprintf("%s IN ?", w.field), values...)
 }
 
+type whereHelpernull_String struct{ field string }
+
+func (w whereHelpernull_String) EQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, false, x)
+}
+func (w whereHelpernull_String) NEQ(x null.String) qm.QueryMod {
+	return qmhelper.WhereNullEQ(w.field, true, x)
+}
+func (w whereHelpernull_String) IsNull() qm.QueryMod    { return qmhelper.WhereIsNull(w.field) }
+func (w whereHelpernull_String) IsNotNull() qm.QueryMod { return qmhelper.WhereIsNotNull(w.field) }
+func (w whereHelpernull_String) LT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpernull_String) LTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpernull_String) GT(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var AccountWhere = struct {
-	ID       whereHelperint64
-	Username whereHelperstring
-	Password whereHelperstring
+	ID          whereHelperint
+	Username    whereHelperstring
+	Password    whereHelperstring
+	Email       whereHelpernull_String
+	Fullname    whereHelperstring
+	Phonenumber whereHelperstring
+	Role        whereHelperstring
 }{
-	ID:       whereHelperint64{field: "\"account\".\"id\""},
-	Username: whereHelperstring{field: "\"account\".\"username\""},
-	Password: whereHelperstring{field: "\"account\".\"password\""},
+	ID:          whereHelperint{field: "\"accounts\".\"id\""},
+	Username:    whereHelperstring{field: "\"accounts\".\"username\""},
+	Password:    whereHelperstring{field: "\"accounts\".\"password\""},
+	Email:       whereHelpernull_String{field: "\"accounts\".\"email\""},
+	Fullname:    whereHelperstring{field: "\"accounts\".\"fullname\""},
+	Phonenumber: whereHelperstring{field: "\"accounts\".\"phonenumber\""},
+	Role:        whereHelperstring{field: "\"accounts\".\"role\""},
 }
 
 // AccountRels is where relationship names are stored.
@@ -102,8 +146,8 @@ func (*accountR) NewStruct() *accountR {
 type accountL struct{}
 
 var (
-	accountAllColumns            = []string{"id", "username", "password"}
-	accountColumnsWithoutDefault = []string{"username", "password"}
+	accountAllColumns            = []string{"id", "username", "password", "email", "fullname", "phonenumber", "role"}
+	accountColumnsWithoutDefault = []string{"username", "password", "email", "fullname", "phonenumber", "role"}
 	accountColumnsWithDefault    = []string{"id"}
 	accountPrimaryKeyColumns     = []string{"id"}
 )
@@ -322,7 +366,7 @@ func (q accountQuery) One(ctx context.Context, exec boil.ContextExecutor) (*Acco
 		if errors.Cause(err) == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: failed to execute a one query for account")
+		return nil, errors.Wrap(err, "models: failed to execute a one query for accounts")
 	}
 
 	if err := o.doAfterSelectHooks(ctx, exec); err != nil {
@@ -361,7 +405,7 @@ func (q accountQuery) Count(ctx context.Context, exec boil.ContextExecutor) (int
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to count account rows")
+		return 0, errors.Wrap(err, "models: failed to count accounts rows")
 	}
 
 	return count, nil
@@ -377,7 +421,7 @@ func (q accountQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bo
 
 	err := q.Query.QueryRowContext(ctx, exec).Scan(&count)
 	if err != nil {
-		return false, errors.Wrap(err, "models: failed to check if account exists")
+		return false, errors.Wrap(err, "models: failed to check if accounts exists")
 	}
 
 	return count > 0, nil
@@ -385,13 +429,13 @@ func (q accountQuery) Exists(ctx context.Context, exec boil.ContextExecutor) (bo
 
 // Accounts retrieves all the records using an executor.
 func Accounts(mods ...qm.QueryMod) accountQuery {
-	mods = append(mods, qm.From("\"account\""))
+	mods = append(mods, qm.From("\"accounts\""))
 	return accountQuery{NewQuery(mods...)}
 }
 
 // FindAccount retrieves a single record by ID with an executor.
 // If selectCols is empty Find will return all columns.
-func FindAccount(ctx context.Context, exec boil.ContextExecutor, iD int64, selectCols ...string) (*Account, error) {
+func FindAccount(ctx context.Context, exec boil.ContextExecutor, iD int, selectCols ...string) (*Account, error) {
 	accountObj := &Account{}
 
 	sel := "*"
@@ -399,7 +443,7 @@ func FindAccount(ctx context.Context, exec boil.ContextExecutor, iD int64, selec
 		sel = strings.Join(strmangle.IdentQuoteSlice(dialect.LQ, dialect.RQ, selectCols), ",")
 	}
 	query := fmt.Sprintf(
-		"select %s from \"account\" where \"id\"=$1", sel,
+		"select %s from \"accounts\" where \"id\"=$1", sel,
 	)
 
 	q := queries.Raw(query, iD)
@@ -409,7 +453,7 @@ func FindAccount(ctx context.Context, exec boil.ContextExecutor, iD int64, selec
 		if errors.Cause(err) == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
 		}
-		return nil, errors.Wrap(err, "models: unable to select from account")
+		return nil, errors.Wrap(err, "models: unable to select from accounts")
 	}
 
 	return accountObj, nil
@@ -419,7 +463,7 @@ func FindAccount(ctx context.Context, exec boil.ContextExecutor, iD int64, selec
 // See boil.Columns.InsertColumnSet documentation to understand column list inference for inserts.
 func (o *Account) Insert(ctx context.Context, exec boil.ContextExecutor, columns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no account provided for insertion")
+		return errors.New("models: no accounts provided for insertion")
 	}
 
 	var err error
@@ -452,9 +496,9 @@ func (o *Account) Insert(ctx context.Context, exec boil.ContextExecutor, columns
 			return err
 		}
 		if len(wl) != 0 {
-			cache.query = fmt.Sprintf("INSERT INTO \"account\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
+			cache.query = fmt.Sprintf("INSERT INTO \"accounts\" (\"%s\") %%sVALUES (%s)%%s", strings.Join(wl, "\",\""), strmangle.Placeholders(dialect.UseIndexPlaceholders, len(wl), 1, 1))
 		} else {
-			cache.query = "INSERT INTO \"account\" %sDEFAULT VALUES%s"
+			cache.query = "INSERT INTO \"accounts\" %sDEFAULT VALUES%s"
 		}
 
 		var queryOutput, queryReturning string
@@ -482,7 +526,7 @@ func (o *Account) Insert(ctx context.Context, exec boil.ContextExecutor, columns
 	}
 
 	if err != nil {
-		return errors.Wrap(err, "models: unable to insert into account")
+		return errors.Wrap(err, "models: unable to insert into accounts")
 	}
 
 	if !cached {
@@ -517,10 +561,10 @@ func (o *Account) Update(ctx context.Context, exec boil.ContextExecutor, columns
 			wl = strmangle.SetComplement(wl, []string{"created_at"})
 		}
 		if len(wl) == 0 {
-			return 0, errors.New("models: unable to update account, could not build whitelist")
+			return 0, errors.New("models: unable to update accounts, could not build whitelist")
 		}
 
-		cache.query = fmt.Sprintf("UPDATE \"account\" SET %s WHERE %s",
+		cache.query = fmt.Sprintf("UPDATE \"accounts\" SET %s WHERE %s",
 			strmangle.SetParamNames("\"", "\"", 1, wl),
 			strmangle.WhereClause("\"", "\"", len(wl)+1, accountPrimaryKeyColumns),
 		)
@@ -540,12 +584,12 @@ func (o *Account) Update(ctx context.Context, exec boil.ContextExecutor, columns
 	var result sql.Result
 	result, err = exec.ExecContext(ctx, cache.query, values...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update account row")
+		return 0, errors.Wrap(err, "models: unable to update accounts row")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by update for account")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by update for accounts")
 	}
 
 	if !cached {
@@ -563,12 +607,12 @@ func (q accountQuery) UpdateAll(ctx context.Context, exec boil.ContextExecutor, 
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to update all for account")
+		return 0, errors.Wrap(err, "models: unable to update all for accounts")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for account")
+		return 0, errors.Wrap(err, "models: unable to retrieve rows affected for accounts")
 	}
 
 	return rowsAff, nil
@@ -601,7 +645,7 @@ func (o AccountSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, 
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := fmt.Sprintf("UPDATE \"account\" SET %s WHERE %s",
+	sql := fmt.Sprintf("UPDATE \"accounts\" SET %s WHERE %s",
 		strmangle.SetParamNames("\"", "\"", 1, colNames),
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), len(colNames)+1, accountPrimaryKeyColumns, len(o)))
 
@@ -626,7 +670,7 @@ func (o AccountSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, 
 // See boil.Columns documentation for how to properly use updateColumns and insertColumns.
 func (o *Account) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
-		return errors.New("models: no account provided for upsert")
+		return errors.New("models: no accounts provided for upsert")
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
@@ -682,7 +726,7 @@ func (o *Account) Upsert(ctx context.Context, exec boil.ContextExecutor, updateO
 		)
 
 		if updateOnConflict && len(update) == 0 {
-			return errors.New("models: unable to upsert account, could not build update column list")
+			return errors.New("models: unable to upsert accounts, could not build update column list")
 		}
 
 		conflict := conflictColumns
@@ -690,7 +734,7 @@ func (o *Account) Upsert(ctx context.Context, exec boil.ContextExecutor, updateO
 			conflict = make([]string, len(accountPrimaryKeyColumns))
 			copy(conflict, accountPrimaryKeyColumns)
 		}
-		cache.query = buildUpsertQueryPostgres(dialect, "\"account\"", updateOnConflict, ret, update, conflict, insert)
+		cache.query = buildUpsertQueryPostgres(dialect, "\"accounts\"", updateOnConflict, ret, update, conflict, insert)
 
 		cache.valueMapping, err = queries.BindMapping(accountType, accountMapping, insert)
 		if err != nil {
@@ -725,7 +769,7 @@ func (o *Account) Upsert(ctx context.Context, exec boil.ContextExecutor, updateO
 		_, err = exec.ExecContext(ctx, cache.query, vals...)
 	}
 	if err != nil {
-		return errors.Wrap(err, "models: unable to upsert account")
+		return errors.Wrap(err, "models: unable to upsert accounts")
 	}
 
 	if !cached {
@@ -749,7 +793,7 @@ func (o *Account) Delete(ctx context.Context, exec boil.ContextExecutor) (int64,
 	}
 
 	args := queries.ValuesFromMapping(reflect.Indirect(reflect.ValueOf(o)), accountPrimaryKeyMapping)
-	sql := "DELETE FROM \"account\" WHERE \"id\"=$1"
+	sql := "DELETE FROM \"accounts\" WHERE \"id\"=$1"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -758,12 +802,12 @@ func (o *Account) Delete(ctx context.Context, exec boil.ContextExecutor) (int64,
 	}
 	result, err := exec.ExecContext(ctx, sql, args...)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete from account")
+		return 0, errors.Wrap(err, "models: unable to delete from accounts")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for account")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by delete for accounts")
 	}
 
 	if err := o.doAfterDeleteHooks(ctx, exec); err != nil {
@@ -783,12 +827,12 @@ func (q accountQuery) DeleteAll(ctx context.Context, exec boil.ContextExecutor) 
 
 	result, err := q.Query.ExecContext(ctx, exec)
 	if err != nil {
-		return 0, errors.Wrap(err, "models: unable to delete all from account")
+		return 0, errors.Wrap(err, "models: unable to delete all from accounts")
 	}
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for account")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for accounts")
 	}
 
 	return rowsAff, nil
@@ -814,7 +858,7 @@ func (o AccountSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) 
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "DELETE FROM \"account\" WHERE " +
+	sql := "DELETE FROM \"accounts\" WHERE " +
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, accountPrimaryKeyColumns, len(o))
 
 	if boil.IsDebug(ctx) {
@@ -829,7 +873,7 @@ func (o AccountSlice) DeleteAll(ctx context.Context, exec boil.ContextExecutor) 
 
 	rowsAff, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for account")
+		return 0, errors.Wrap(err, "models: failed to get rows affected by deleteall for accounts")
 	}
 
 	if len(accountAfterDeleteHooks) != 0 {
@@ -869,7 +913,7 @@ func (o *AccountSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor)
 		args = append(args, pkeyArgs...)
 	}
 
-	sql := "SELECT \"account\".* FROM \"account\" WHERE " +
+	sql := "SELECT \"accounts\".* FROM \"accounts\" WHERE " +
 		strmangle.WhereClauseRepeated(string(dialect.LQ), string(dialect.RQ), 1, accountPrimaryKeyColumns, len(*o))
 
 	q := queries.Raw(sql, args...)
@@ -885,9 +929,9 @@ func (o *AccountSlice) ReloadAll(ctx context.Context, exec boil.ContextExecutor)
 }
 
 // AccountExists checks if the Account row exists.
-func AccountExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bool, error) {
+func AccountExists(ctx context.Context, exec boil.ContextExecutor, iD int) (bool, error) {
 	var exists bool
-	sql := "select exists(select 1 from \"account\" where \"id\"=$1 limit 1)"
+	sql := "select exists(select 1 from \"accounts\" where \"id\"=$1 limit 1)"
 
 	if boil.IsDebug(ctx) {
 		writer := boil.DebugWriterFrom(ctx)
@@ -898,7 +942,7 @@ func AccountExists(ctx context.Context, exec boil.ContextExecutor, iD int64) (bo
 
 	err := row.Scan(&exists)
 	if err != nil {
-		return false, errors.Wrap(err, "models: unable to check if account exists")
+		return false, errors.Wrap(err, "models: unable to check if accounts exists")
 	}
 
 	return exists, nil

@@ -5,10 +5,10 @@ downdb:
 run:
 	go run controller/main.go
 dropdb:
-	migrate -path db/migration -database "postgresql://postgresb:Phong0832210125@localhost:5434/shopping?sslmode=disable" drop
+	migrate -path database/migration -database "postgresql://postgresb:Phong0832210125@localhost:5434/shopping?sslmode=disable" drop
 migrateinit:
-	migrate create -ext sql -dir db/migration -seq init_schema
+	migrate create -ext sql -dir database/migration -seq init_schema
 migrateup:
-	migrate -path db/migration -database "postgresql://postgresb:Phong0832210125@localhost:5434/shopping?sslmode=disable" -verbose up
+	migrate -path database/migration -database "postgresql://postgresb:Phong0832210125@localhost:5434/shopping?sslmode=disable" -verbose up
 migratedown:
-	migrate -path db/migration -database "postgresql://postgresb:Phong0832210125@localhost:5434/shopping?sslmode=disable" -verbose down
+	migrate -path database/migration -database "postgresql://postgresb:Phong0832210125@localhost:5434/shopping?sslmode=disable" -verbose down
