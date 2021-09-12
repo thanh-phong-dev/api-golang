@@ -31,6 +31,11 @@ type Account struct {
 	Fullname    string      `boil:"fullname" json:"fullname" toml:"fullname" yaml:"fullname"`
 	Phonenumber string      `boil:"phonenumber" json:"phonenumber" toml:"phonenumber" yaml:"phonenumber"`
 	Role        string      `boil:"role" json:"role" toml:"role" yaml:"role"`
+	Sex         string      `boil:"sex" json:"sex" toml:"sex" yaml:"sex"`
+	Address     null.String `boil:"address" json:"address,omitempty" toml:"address" yaml:"address,omitempty"`
+	DateOfBirth null.String `boil:"date_of_birth" json:"date_of_birth,omitempty" toml:"date_of_birth" yaml:"date_of_birth,omitempty"`
+	IsDeleted   bool        `boil:"is_deleted" json:"is_deleted" toml:"is_deleted" yaml:"is_deleted"`
+	CreatedAt   time.Time   `boil:"created_at" json:"created_at" toml:"created_at" yaml:"created_at"`
 
 	R *accountR `boil:"-" json:"-" toml:"-" yaml:"-"`
 	L accountL  `boil:"-" json:"-" toml:"-" yaml:"-"`
@@ -44,6 +49,11 @@ var AccountColumns = struct {
 	Fullname    string
 	Phonenumber string
 	Role        string
+	Sex         string
+	Address     string
+	DateOfBirth string
+	IsDeleted   string
+	CreatedAt   string
 }{
 	ID:          "id",
 	Username:    "username",
@@ -52,6 +62,11 @@ var AccountColumns = struct {
 	Fullname:    "fullname",
 	Phonenumber: "phonenumber",
 	Role:        "role",
+	Sex:         "sex",
+	Address:     "address",
+	DateOfBirth: "date_of_birth",
+	IsDeleted:   "is_deleted",
+	CreatedAt:   "created_at",
 }
 
 // Generated where
@@ -111,6 +126,36 @@ func (w whereHelpernull_String) GTE(x null.String) qm.QueryMod {
 	return qmhelper.Where(w.field, qmhelper.GTE, x)
 }
 
+type whereHelperbool struct{ field string }
+
+func (w whereHelperbool) EQ(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.EQ, x) }
+func (w whereHelperbool) NEQ(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.NEQ, x) }
+func (w whereHelperbool) LT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.LT, x) }
+func (w whereHelperbool) LTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.LTE, x) }
+func (w whereHelperbool) GT(x bool) qm.QueryMod  { return qmhelper.Where(w.field, qmhelper.GT, x) }
+func (w whereHelperbool) GTE(x bool) qm.QueryMod { return qmhelper.Where(w.field, qmhelper.GTE, x) }
+
+type whereHelpertime_Time struct{ field string }
+
+func (w whereHelpertime_Time) EQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.EQ, x)
+}
+func (w whereHelpertime_Time) NEQ(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.NEQ, x)
+}
+func (w whereHelpertime_Time) LT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LT, x)
+}
+func (w whereHelpertime_Time) LTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.LTE, x)
+}
+func (w whereHelpertime_Time) GT(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GT, x)
+}
+func (w whereHelpertime_Time) GTE(x time.Time) qm.QueryMod {
+	return qmhelper.Where(w.field, qmhelper.GTE, x)
+}
+
 var AccountWhere = struct {
 	ID          whereHelperint
 	Username    whereHelperstring
@@ -119,6 +164,11 @@ var AccountWhere = struct {
 	Fullname    whereHelperstring
 	Phonenumber whereHelperstring
 	Role        whereHelperstring
+	Sex         whereHelperstring
+	Address     whereHelpernull_String
+	DateOfBirth whereHelpernull_String
+	IsDeleted   whereHelperbool
+	CreatedAt   whereHelpertime_Time
 }{
 	ID:          whereHelperint{field: "\"accounts\".\"id\""},
 	Username:    whereHelperstring{field: "\"accounts\".\"username\""},
@@ -127,6 +177,11 @@ var AccountWhere = struct {
 	Fullname:    whereHelperstring{field: "\"accounts\".\"fullname\""},
 	Phonenumber: whereHelperstring{field: "\"accounts\".\"phonenumber\""},
 	Role:        whereHelperstring{field: "\"accounts\".\"role\""},
+	Sex:         whereHelperstring{field: "\"accounts\".\"sex\""},
+	Address:     whereHelpernull_String{field: "\"accounts\".\"address\""},
+	DateOfBirth: whereHelpernull_String{field: "\"accounts\".\"date_of_birth\""},
+	IsDeleted:   whereHelperbool{field: "\"accounts\".\"is_deleted\""},
+	CreatedAt:   whereHelpertime_Time{field: "\"accounts\".\"created_at\""},
 }
 
 // AccountRels is where relationship names are stored.
@@ -146,9 +201,9 @@ func (*accountR) NewStruct() *accountR {
 type accountL struct{}
 
 var (
-	accountAllColumns            = []string{"id", "username", "password", "email", "fullname", "phonenumber", "role"}
-	accountColumnsWithoutDefault = []string{"username", "password", "email", "fullname", "phonenumber", "role"}
-	accountColumnsWithDefault    = []string{"id"}
+	accountAllColumns            = []string{"id", "username", "password", "email", "fullname", "phonenumber", "role", "sex", "address", "date_of_birth", "is_deleted", "created_at"}
+	accountColumnsWithoutDefault = []string{"username", "password", "email", "fullname", "phonenumber", "role", "sex", "address", "date_of_birth"}
+	accountColumnsWithDefault    = []string{"id", "is_deleted", "created_at"}
 	accountPrimaryKeyColumns     = []string{"id"}
 )
 
@@ -467,6 +522,13 @@ func (o *Account) Insert(ctx context.Context, exec boil.ContextExecutor, columns
 	}
 
 	var err error
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
+	}
 
 	if err := o.doBeforeInsertHooks(ctx, exec); err != nil {
 		return err
@@ -671,6 +733,13 @@ func (o AccountSlice) UpdateAll(ctx context.Context, exec boil.ContextExecutor, 
 func (o *Account) Upsert(ctx context.Context, exec boil.ContextExecutor, updateOnConflict bool, conflictColumns []string, updateColumns, insertColumns boil.Columns) error {
 	if o == nil {
 		return errors.New("models: no accounts provided for upsert")
+	}
+	if !boil.TimestampsAreSkipped(ctx) {
+		currTime := time.Now().In(boil.GetLocation())
+
+		if o.CreatedAt.IsZero() {
+			o.CreatedAt = currTime
+		}
 	}
 
 	if err := o.doBeforeUpsertHooks(ctx, exec); err != nil {
