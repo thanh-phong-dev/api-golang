@@ -2,7 +2,9 @@ package api
 
 import (
 	"api-booking/controller/server/api/admin"
+	"api-booking/controller/server/api/admin/account"
 	"api-booking/controller/server/api/users"
+	"api-booking/middlewares"
 	"database/sql"
 	"net/http"
 	"time"
@@ -35,6 +37,7 @@ func NewHandler(db *sql.DB, client *redis.Client) http.Handler {
 
 	v1 := router.Group("/api")
 	{
+		v1.GET("logout", middlewares.AuthJwtVerify(), func(c *gin.Context) { account.LogoutAccount(c, client) })
 		admin.Routes(v1, db, client)
 		users.Routes(v1, db)
 	}
